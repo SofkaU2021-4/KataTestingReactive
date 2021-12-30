@@ -2,18 +2,24 @@ package com.co.sofka.kata1.Controllers;
 
 
 import com.co.sofka.kata1.Model.Person;
+import com.co.sofka.kata1.Service.PersonService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.lang.invoke.SerializedLambda;
 import java.util.List;
 
 @RestController
 @RequestMapping("/person")
 public class PersonController {
+    @Autowired
+    PersonService personService;
+
     @PostMapping
     public Mono<Void> post(@RequestBody Mono<Person> personMono){
-        return Mono.empty();
+        return personMono.flatMap(personService::insert);
     }
 
     @GetMapping("/{id}")
@@ -28,11 +34,8 @@ public class PersonController {
 
     @GetMapping
     public Flux<Person> list(){
-        var personas= List.of(
-                new Person("Raul Alzate"),
-                new Person("Pedro")
-        );
-        return Flux.fromStream(personas.stream());
+
+        return personService.listAll();
     }
 
     @PutMapping
